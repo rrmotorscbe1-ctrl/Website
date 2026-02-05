@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Menu, X, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import logo from '/logo.jpeg';
+import logo from '/logo.png';
 import {
   Sheet,
   SheetContent,
@@ -18,6 +18,7 @@ const navItems = [
   { label: 'Second Hand', href: '#second-hand' },
   { label: 'Insurance', href: '#insurance' },
   { label: 'Service', href: '#service' },
+  { label: 'Careers', href: '#careers' },
   { label: 'Finance', href: '/finance', isExternal: true },
 ];
 
@@ -33,8 +34,24 @@ export function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleNavClick = (href: string) => {
+  const handleNavClick = (href: string, isExternal?: boolean) => {
     setIsOpen(false);
+    
+    // If it's an external route, navigate to it
+    if (isExternal) {
+      window.location.href = href;
+      return;
+    }
+    
+    // Check if we're on a different page (not home page)
+    const currentPath = window.location.pathname;
+    if (currentPath !== '/') {
+      // Navigate to home with the hash
+      window.location.href = `/${href}`;
+      return;
+    }
+    
+    // On home page, scroll to the element
     const element = document.querySelector(href);
     element?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -52,17 +69,22 @@ export function Navbar() {
       <div className="container-custom flex items-center justify-between">
         {/* Logo */}
         <a
-          href="#home"
+          href="/"
           onClick={(e) => {
             e.preventDefault();
-            handleNavClick('#home');
+            const currentPath = window.location.pathname;
+            if (currentPath !== '/') {
+              window.location.href = '/';
+            } else {
+              handleNavClick('#home');
+            }
           }}
           className="flex items-center gap-3 hover:opacity-90 transition-opacity"
         >
           <img
             src={logo}
             alt="RR Motors Logo"
-            className="h-12 md:h-14 w-auto"
+            className="h-12 md:h-14 w-auto drop-shadow-lg"
           />
         </a>
 
@@ -73,10 +95,8 @@ export function Navbar() {
               key={item.label}
               href={item.href}
               onClick={(e) => {
-                if (!item.isExternal) {
-                  e.preventDefault();
-                  handleNavClick(item.href);
-                }
+                e.preventDefault();
+                handleNavClick(item.href, item.isExternal);
               }}
               className="nav-link text-hero-foreground/90 hover:text-hero-foreground"
             >
@@ -122,12 +142,8 @@ export function Navbar() {
                   key={item.label}
                   href={item.href}
                   onClick={(e) => {
-                    if (!item.isExternal) {
-                      e.preventDefault();
-                      handleNavClick(item.href);
-                    } else {
-                      setIsOpen(false);
-                    }
+                    e.preventDefault();
+                    handleNavClick(item.href, item.isExternal);
                   }}
                   className="group flex items-center justify-between px-6 py-4 text-hero-foreground/90 hover:text-primary hover:bg-hero-foreground/5 transition-all duration-300"
                   style={{ animationDelay: `${index * 50}ms` }}

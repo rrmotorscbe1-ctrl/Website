@@ -532,6 +532,52 @@ router.post('/enquiries', async (req, res) => {
   }
 });
 
+// POST create new enquiry (alias endpoint for convenience)
+router.post('/enquire', async (req, res) => {
+  try {
+    const enquiryData = req.body;
+    
+    // Validate required fields
+    if (!enquiryData.customer_name || !enquiryData.phone) {
+      return res.status(400).json({ message: 'Name and phone are required' });
+    }
+
+    // Prepare data for insertion, only include provided fields
+    const dataToInsert = {
+      customer_name: enquiryData.customer_name,
+      phone: enquiryData.phone,
+      enquiry_type: enquiryData.enquiry_type || 'General',
+      message: enquiryData.message,
+      email: enquiryData.email || null,
+      bike_id: enquiryData.bike_id || null,
+      second_hand_bike_id: enquiryData.second_hand_bike_id || null,
+      bike_type: enquiryData.bike_type || 'new',
+      budget_range: enquiryData.budget_range || null,
+      preferred_contact: enquiryData.preferred_contact || null,
+      purchase_timeline: enquiryData.purchase_timeline || null,
+      status: enquiryData.status || 'New',
+      follow_up_date: enquiryData.follow_up_date || null,
+      assigned_to: enquiryData.assigned_to || null,
+      notes: enquiryData.notes || null
+    };
+
+    const { data, error } = await supabase
+      .from('enquiries')
+      .insert([dataToInsert])
+      .select();
+
+    if (error) {
+      console.error('Supabase error:', error);
+      throw error;
+    }
+    
+    res.status(201).json({ success: true, data: data?.[0] || {} });
+  } catch (error) {
+    console.error('Error creating enquiry:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // PUT update enquiry
 router.put('/enquiries/:id', async (req, res) => {
   try {

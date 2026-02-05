@@ -6,15 +6,15 @@ const API_URL = 'http://localhost:5000/api';
 
 export const supabase: SupabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Admin Login using .env credentials
-export async function loginAdmin(email: string, password: string) {
+// Admin Login using username and password
+export async function loginAdmin(username: string, password: string) {
   try {
     const response = await fetch(`${API_URL}/auth/admin-login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ username, password })
     });
 
     const data = await response.json();
@@ -26,7 +26,7 @@ export async function loginAdmin(email: string, password: string) {
     // Store token in localStorage
     if (data.token) {
       localStorage.setItem('admin_token', data.token);
-      localStorage.setItem('admin_email', data.admin.email);
+      localStorage.setItem('admin_username', data.admin.username);
       localStorage.setItem('admin_name', data.admin.name);
     }
 
@@ -71,7 +71,7 @@ export async function getAdminInfo() {
 export async function logoutAdmin() {
   try {
     localStorage.removeItem('admin_token');
-    localStorage.removeItem('admin_email');
+    localStorage.removeItem('admin_username');
     localStorage.removeItem('admin_name');
     return { success: true };
   } catch (error: unknown) {

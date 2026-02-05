@@ -64,7 +64,16 @@ export function BikeDetail({ isSecondHand = false, isAdminView = false }: BikeDe
       
       // Check if admin view is enabled
       if (isAdminView) {
+        console.log('Admin view enabled from props');
         setIsAdmin(true);
+      } else {
+        // Check if admin token exists in localStorage
+        const adminToken = localStorage.getItem('adminToken');
+        console.log('Checking admin token:', !!adminToken);
+        if (adminToken) {
+          console.log('Admin token found, enabling edit mode');
+          setIsAdmin(true);
+        }
       }
       
       const data = isSecondHand 
@@ -86,7 +95,17 @@ export function BikeDetail({ isSecondHand = false, isAdminView = false }: BikeDe
 
   useEffect(() => {
     fetchBike();
-  }, [fetchBike]);
+    
+    // Also check admin status immediately
+    if (isAdminView) {
+      setIsAdmin(true);
+    } else {
+      const adminToken = localStorage.getItem('adminToken');
+      if (adminToken) {
+        setIsAdmin(true);
+      }
+    }
+  }, [fetchBike, isAdminView]);
 
   const handleInputChange = (field: string, value: string | number | boolean | string[]) => {
     setFormData({ ...formData, [field]: value });

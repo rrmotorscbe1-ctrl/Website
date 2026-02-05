@@ -15,7 +15,8 @@ CREATE TABLE enquiries (
   bike_type VARCHAR(20) CHECK (bike_type IN ('new', 'second_hand')),
   
   -- Enquiry Details
-  enquiry_type VARCHAR(50) NOT NULL CHECK (enquiry_type IN ('Purchase', 'Test Drive', 'Price Inquiry', 'Finance', 'Exchange', 'Service', 'General')),
+  enquiry_type VARCHAR(50) NOT NULL CHECK (enquiry_type IN ('Purchase', 'Test Drive', 'Price Inquiry', 'Finance', 'Exchange', 'Service', 'Career', 'General')),
+  subject VARCHAR(255),
   message TEXT,
   budget_range VARCHAR(50),
   preferred_contact VARCHAR(20) CHECK (preferred_contact IN ('Email', 'Phone', 'WhatsApp')),

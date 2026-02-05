@@ -41,13 +41,13 @@ export function HeroSection() {
 
           {/* Main Heading */}
           <h1 className="animate-fade-up-delay-1 text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-display font-bold text-hero-foreground leading-tight mb-6">
-            Experience The
-            <span className="block text-gradient">Power of Speed</span>
+            WELCOME TO
+            <span className="block text-gradient">RR MOTORS</span>
           </h1>
 
           {/* Subheading */}
           <p className="animate-fade-up-delay-2 text-lg md:text-xl lg:text-2xl text-hero-foreground/80 max-w-2xl mx-auto mb-10">
-            Discover your perfect ride from our exclusive collection of world-class motorcycles. Where passion meets performance.
+            ONE STOP - MULTICHOICE
           </p>
 
           {/* CTA Buttons */}
@@ -71,15 +71,15 @@ export function HeroSection() {
           {/* Stats */}
           <div className="animate-fade-up-delay-3 mt-16 grid grid-cols-3 gap-8 max-w-lg mx-auto">
             <div className="text-center">
-              <div className="text-3xl md:text-4xl font-display font-bold text-primary">2+</div>
+              <div className="text-3xl md:text-4xl font-display font-bold text-primary">3+</div>
               <div className="text-sm text-hero-foreground/60">Years Experience</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl md:text-4xl font-display font-bold text-primary">100+</div>
+              <div className="text-3xl md:text-4xl font-display font-bold text-primary">200+</div>
               <div className="text-sm text-hero-foreground/60">Bikes Delivered</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl md:text-4xl font-display font-bold text-primary">10+</div>
+              <div className="text-3xl md:text-4xl font-display font-bold text-primary">30+</div>
               <div className="text-sm text-hero-foreground/60">Premium Models</div>
             </div>
           </div>

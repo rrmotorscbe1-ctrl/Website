@@ -5,22 +5,22 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { loginAdmin } from '@/lib/auth';
 import { useToast } from '@/components/ui/use-toast';
-import { Lock, Mail } from 'lucide-react';
+import { Lock, User } from 'lucide-react';
 
 export function LoginPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [email, setEmail] = useState('admin@rrmotors.com');
+  const [username, setUsername] = useState('rrmotors');
   const [password, setPassword] = useState('');
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email || !password) {
+    if (!username || !password) {
       toast({
         title: 'Error',
-        description: 'Please enter both email and password',
+        description: 'Please enter both username and password',
         variant: 'destructive'
       });
       return;
@@ -28,7 +28,7 @@ export function LoginPage() {
 
     try {
       setIsLoading(true);
-      const result = await loginAdmin(email, password);
+      const result = await loginAdmin(username, password);
       
       if (result.success) {
         toast({
@@ -39,7 +39,7 @@ export function LoginPage() {
       } else {
         toast({
           title: 'Login Failed',
-          description: result.error || 'Invalid email or password',
+          description: result.error || 'Invalid username or password',
           variant: 'destructive'
         });
       }
@@ -78,17 +78,17 @@ export function LoginPage() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
-              {/* Email Input */}
+              {/* Username Input */}
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <Mail className="w-4 h-4" />
-                  Email Address
+                  <User className="w-4 h-4" />
+                  Username
                 </label>
                 <Input
-                  type="email"
-                  placeholder="admin@rrmotors.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  type="text"
+                  placeholder="rrmotors"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   disabled={isLoading}
                   className="bg-background border-primary/20 focus:border-primary"
                 />
@@ -122,8 +122,8 @@ export function LoginPage() {
               {/* Demo Info */}
               <div className="p-4 bg-primary/10 rounded-lg border border-primary/20 text-sm">
                 <p className="text-muted-foreground mb-2 font-semibold">Demo Credentials:</p>
-                <p className="text-muted-foreground">Email: admin@rrmotors.com</p>
-                <p className="text-muted-foreground">Password: admin123456</p>
+                <p className="text-muted-foreground">Username: rrmotors</p>
+                <p className="text-muted-foreground">Password: rrmotors@1</p>
               </div>
 
               {/* Home Link */}

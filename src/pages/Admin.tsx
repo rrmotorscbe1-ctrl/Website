@@ -27,6 +27,9 @@ export function AdminDashboard() {
   const [enquiries, setEnquiries] = useState([]);
   const [selectedEnquiry, setSelectedEnquiry] = useState<any>(null);
   const [showNewBrandModal, setShowNewBrandModal] = useState(false);
+  const [showEditBikeModal, setShowEditBikeModal] = useState(false);
+  const [editingBike, setEditingBike] = useState<any>(null);
+  const [editBikeForm, setEditBikeForm] = useState<any>({});
   const [newBrandForm, setNewBrandForm] = useState({
     name: '',
     country: '',
@@ -100,6 +103,78 @@ export function AdminDashboard() {
         description: 'Failed to delete bike',
         variant: 'destructive'
       });
+    }
+  };
+
+  // Handle bike edit save
+  const handleSaveEditBike = async () => {
+    if (!editingBike) return;
+    
+    try {
+      setIsLoading(true);
+      
+      // Check if it's a second-hand bike
+      const isSecondHand = allSecondHandBikes.some(b => b.id === editingBike.id);
+      
+      if (isSecondHand) {
+        // Update second-hand bike
+        await bikeAPI.updateSecondHandBike(editingBike.id, {
+          name: editBikeForm.name,
+          brand_id: editBikeForm.brand_id,
+          price: editBikeForm.price,
+          category: editBikeForm.category,
+          specs: editBikeForm.specs,
+          condition: editBikeForm.condition,
+          mileage: editBikeForm.mileage,
+          year_manufacture: editBikeForm.year_manufacture,
+          owner_count: editBikeForm.owner_count,
+          registration_number: editBikeForm.registration_number,
+          availability: editBikeForm.availability,
+          image_url: editBikeForm.image_url,
+          description: editBikeForm.description,
+          features: editBikeForm.features
+        });
+        
+        // Update second-hand bikes list
+        setAllSecondHandBikes(allSecondHandBikes.map(b => b.id === editingBike.id ? { ...b, ...editBikeForm } : b));
+      } else {
+        // Update new bike
+        await bikeAPI.updateBike(editingBike.id, {
+          name: editBikeForm.name,
+          brand_id: editBikeForm.brand_id,
+          price: editBikeForm.price,
+          category: editBikeForm.category,
+          specs: editBikeForm.specs,
+          engine_cc: editBikeForm.engine_cc,
+          horsepower: editBikeForm.horsepower,
+          availability: editBikeForm.availability,
+          stock_quantity: editBikeForm.stock_quantity,
+          year_model: editBikeForm.year_model,
+          image_url: editBikeForm.image_url,
+          description: editBikeForm.description,
+          features: editBikeForm.features
+        });
+        
+        // Update bikes list
+        setAllBikes(allBikes.map(b => b.id === editingBike.id ? { ...b, ...editBikeForm } : b));
+      }
+      
+      toast({
+        title: 'Success',
+        description: 'Bike updated successfully'
+      });
+      
+      setShowEditBikeModal(false);
+      setEditingBike(null);
+    } catch (error) {
+      console.error('Error updating bike:', error);
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to update bike',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -442,7 +517,7 @@ export function AdminDashboard() {
 
         {/* Tabs */}
         <Tabs defaultValue="new-bikes" className="space-y-4">
-          <TabsList className="grid w-full max-w-3xl grid-cols-5">
+          <TabsList className="grid w-full max-w-4xl grid-cols-5">
             <TabsTrigger value="new-bikes">Add New Bikes</TabsTrigger>
             <TabsTrigger value="manage-bikes">Manage Bikes</TabsTrigger>
             <TabsTrigger value="second-hand">Add Second Hand</TabsTrigger>
@@ -796,8 +871,9 @@ export function AdminDashboard() {
                                 variant="outline"
                                 size="sm"
                                 onClick={() => {
-                                  console.log('Navigating to bike:', bike.id, 'Full bike object:', bike);
-                                  navigate(`/bike/${bike.id}`);
+                                  setEditingBike(bike);
+                                  setEditBikeForm(bike);
+                                  setShowEditBikeModal(true);
                                 }}
                               >
                                 Edit
@@ -835,7 +911,11 @@ export function AdminDashboard() {
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  onClick={() => navigate(`/bike/second-hand/${bike.id}`)}
+                                  onClick={() => {
+                                    setEditingBike(bike);
+                                    setEditBikeForm(bike);
+                                    setShowEditBikeModal(true);
+                                  }}
                                 >
                                   Edit
                                 </Button>
@@ -1396,6 +1476,240 @@ export function AdminDashboard() {
                     </Button>
                   </div>
                 </form>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Edit Bike Modal */}
+        {showEditBikeModal && editingBike && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <Card className="w-full max-w-2xl border-primary/30 shadow-lg max-h-[90vh] overflow-y-auto">
+              <CardHeader className="bg-gradient-to-r from-primary/10 to-accent/10 border-b border-primary/20 sticky top-0">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-2xl">Edit Bike Details</CardTitle>
+                  <button
+                    onClick={() => setShowEditBikeModal(false)}
+                    className="p-1 hover:bg-white/20 rounded-lg transition"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              </CardHeader>
+
+              <CardContent className="pt-6 space-y-4">
+                {/* Bike Name */}
+                <div>
+                  <label className="text-sm font-semibold">Bike Name</label>
+                  <Input
+                    value={editBikeForm.name || ''}
+                    onChange={(e) => setEditBikeForm({ ...editBikeForm, name: e.target.value })}
+                    placeholder="Enter bike name"
+                  />
+                </div>
+
+                {/* Brand */}
+                <div>
+                  <label className="text-sm font-semibold">Brand</label>
+                  <Select value={editBikeForm.brand_id?.toString() || ''} onValueChange={(value) => setEditBikeForm({ ...editBikeForm, brand_id: parseInt(value) })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select brand" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {brands.map((brand) => (
+                        <SelectItem key={brand.id} value={brand.id.toString()}>{brand.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Price */}
+                <div>
+                  <label className="text-sm font-semibold">Price</label>
+                  <Input
+                    value={editBikeForm.price || ''}
+                    onChange={(e) => setEditBikeForm({ ...editBikeForm, price: e.target.value })}
+                    placeholder="Enter price"
+                  />
+                </div>
+
+                {/* Category */}
+                <div>
+                  <label className="text-sm font-semibold">Category</label>
+                  <Select value={editBikeForm.category || ''} onValueChange={(value) => setEditBikeForm({ ...editBikeForm, category: value })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {['Sports', 'Scooter', 'Commuter', 'Cruiser', 'Adventure', 'Naked'].map((cat) => (
+                        <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Check if second-hand bike and show condition */}
+                {allSecondHandBikes.some(b => b.id === editingBike.id) && (
+                  <div>
+                    <label className="text-sm font-semibold">Condition</label>
+                    <Select value={editBikeForm.condition || ''} onValueChange={(value) => setEditBikeForm({ ...editBikeForm, condition: value })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select condition" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {['Excellent', 'Very Good', 'Good', 'Fair'].map((cond) => (
+                          <SelectItem key={cond} value={cond}>{cond}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
+                {/* Mileage - Second Hand only */}
+                {allSecondHandBikes.some(b => b.id === editingBike.id) && (
+                  <div>
+                    <label className="text-sm font-semibold">Mileage</label>
+                    <Input
+                      value={editBikeForm.mileage || ''}
+                      onChange={(e) => setEditBikeForm({ ...editBikeForm, mileage: e.target.value })}
+                      placeholder="e.g., 5000 km"
+                    />
+                  </div>
+                )}
+
+                {/* Year Manufacture - Second Hand only */}
+                {allSecondHandBikes.some(b => b.id === editingBike.id) && (
+                  <div>
+                    <label className="text-sm font-semibold">Year of Manufacture</label>
+                    <Input
+                      type="number"
+                      value={editBikeForm.year_manufacture || ''}
+                      onChange={(e) => setEditBikeForm({ ...editBikeForm, year_manufacture: e.target.value ? parseInt(e.target.value) : null })}
+                      placeholder="e.g., 2020"
+                    />
+                  </div>
+                )}
+
+                {/* Owner Count - Second Hand only */}
+                {allSecondHandBikes.some(b => b.id === editingBike.id) && (
+                  <div>
+                    <label className="text-sm font-semibold">Number of Owners</label>
+                    <Input
+                      type="number"
+                      value={editBikeForm.owner_count || ''}
+                      onChange={(e) => setEditBikeForm({ ...editBikeForm, owner_count: e.target.value ? parseInt(e.target.value) : null })}
+                      placeholder="e.g., 1"
+                    />
+                  </div>
+                )}
+
+                {/* Registration Number - Second Hand only */}
+                {allSecondHandBikes.some(b => b.id === editingBike.id) && (
+                  <div>
+                    <label className="text-sm font-semibold">Registration Number</label>
+                    <Input
+                      value={editBikeForm.registration_number || ''}
+                      onChange={(e) => setEditBikeForm({ ...editBikeForm, registration_number: e.target.value })}
+                      placeholder="e.g., MH02AB1234"
+                    />
+                  </div>
+                )}                {/* Specifications */}
+                <div>
+                  <label className="text-sm font-semibold">Specifications</label>
+                  <Input
+                    value={editBikeForm.specs || ''}
+                    onChange={(e) => setEditBikeForm({ ...editBikeForm, specs: e.target.value })}
+                    placeholder="Enter specifications"
+                  />
+                </div>
+
+                {/* Engine CC */}
+                <div>
+                  <label className="text-sm font-semibold">Engine CC</label>
+                  <Input
+                    type="number"
+                    value={editBikeForm.engine_cc || ''}
+                    onChange={(e) => setEditBikeForm({ ...editBikeForm, engine_cc: e.target.value ? parseInt(e.target.value) : null })}
+                    placeholder="e.g., 150"
+                  />
+                </div>
+
+                {/* Horsepower */}
+                <div>
+                  <label className="text-sm font-semibold">Horsepower</label>
+                  <Input
+                    value={editBikeForm.horsepower || ''}
+                    onChange={(e) => setEditBikeForm({ ...editBikeForm, horsepower: e.target.value })}
+                    placeholder="e.g., 12 bhp"
+                  />
+                </div>
+
+                {/* Year Model - New bikes only */}
+                {!allSecondHandBikes.some(b => b.id === editingBike.id) && (
+                  <div>
+                    <label className="text-sm font-semibold">Year Model</label>
+                    <Input
+                      type="number"
+                      value={editBikeForm.year_model || ''}
+                      onChange={(e) => setEditBikeForm({ ...editBikeForm, year_model: e.target.value ? parseInt(e.target.value) : null })}
+                      placeholder="e.g., 2024"
+                    />
+                  </div>
+                )}
+
+                {/* Stock Quantity - New bikes only */}
+                {!allSecondHandBikes.some(b => b.id === editingBike.id) && (
+                  <div>
+                    <label className="text-sm font-semibold">Stock Quantity</label>
+                    <Input
+                      type="number"
+                      value={editBikeForm.stock_quantity || ''}
+                      onChange={(e) => setEditBikeForm({ ...editBikeForm, stock_quantity: e.target.value ? parseInt(e.target.value) : 0 })}
+                      placeholder="e.g., 5"
+                    />
+                  </div>
+                )}
+
+                {/* Availability */}
+                <div>
+                  <label className="text-sm font-semibold">Availability</label>
+                  <div className="flex items-center gap-4 mt-2">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        checked={editBikeForm.availability === true}
+                        onChange={() => setEditBikeForm({ ...editBikeForm, availability: true })}
+                      />
+                      Available
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        checked={editBikeForm.availability === false}
+                        onChange={() => setEditBikeForm({ ...editBikeForm, availability: false })}
+                      />
+                      Not Available
+                    </label>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-3 pt-4">
+                  <Button
+                    onClick={handleSaveEditBike}
+                    disabled={isLoading}
+                    className="flex-1 bg-primary hover:bg-primary/90"
+                  >
+                    {isLoading ? 'Saving...' : 'Save Changes'}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowEditBikeModal(false)}
+                    disabled={isLoading}
+                  >
+                    Cancel
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </div>

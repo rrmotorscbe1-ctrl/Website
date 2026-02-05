@@ -7,18 +7,29 @@ const quickLinks = [
   { label: 'Second Hand', href: '#second-hand' },
   { label: 'Insurance', href: '#insurance' },
   { label: 'Service', href: '#service' },
+  { label: 'Careers', href: '#careers' },
+  { label: 'Finance', href: '/finance', isExternal: true },
 ];
 
 const socialLinks = [
   { icon: Facebook, href: '#', label: 'Facebook' },
   { icon: Instagram, href: 'https://instagram.com/rrmotors__coimbatore', label: 'Instagram' },
-  { icon: MessageCircle, href: 'https://wa.me/919514792722', label: 'WhatsApp' },
+  { icon: MessageCircle, href: 'https://wa.me/919677792722', label: 'WhatsApp' },
   { icon: Twitter, href: '#', label: 'Twitter' },
   { icon: Youtube, href: '#', label: 'Youtube' },
 ];
 
 export function Footer() {
   const handleNavClick = (href: string) => {
+    const currentPath = window.location.pathname;
+    
+    // If not on home page, navigate to home with hash
+    if (currentPath !== '/') {
+      window.location.href = `/${href}`;
+      return;
+    }
+    
+    // On home page, scroll to element
     const element = document.querySelector(href);
     element?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -62,8 +73,10 @@ export function Footer() {
                   <a
                     href={link.href}
                     onClick={(e) => {
-                      e.preventDefault();
-                      handleNavClick(link.href);
+                      if (!link.isExternal) {
+                        e.preventDefault();
+                        handleNavClick(link.href);
+                      }
                     }}
                     className="text-section-dark-foreground/60 hover:text-primary transition-colors"
                   >
@@ -116,7 +129,7 @@ export function Footer() {
               <li className="flex items-start gap-3">
                 <Clock className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                 <div className="text-section-dark-foreground/60">
-                  <p>Mon - Sat: 9:00 PM - 8:00 PM</p>
+                  <p>Mon - Sat: 9:00 AM - 9:00 PM</p>
                   <p>Sunday: 10:00 AM - 6:00 PM</p>
                 </div>
               </li>

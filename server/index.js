@@ -2,11 +2,17 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import cloudinary from 'cloudinary';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import bikeRoutes from './routes/bikes.js';
 import uploadRoutes from './routes/upload.js';
+import careersRoutes from './routes/careers.js';
 import { testConnection, supabase } from './config/supabase.js';
 
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Configure Cloudinary
 cloudinary.config({
@@ -32,6 +38,16 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use('/api/bikes', bikeRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api', careersRoutes);
+
+// Serve static files from the dist folder (frontend build)
+const distPath = path.join(__dirname, '../dist');
+app.use(express.static(distPath));
+
+// Fallback to index.html for SPA routing
+app.get('*', (req, res) => {
+  res.sendFile(path.join(distPath, 'index.html'));
+});
 
 // Store Bike Submission to Google Sheets
 app.post('/api/bikes/store-submission', async (req, res) => {
@@ -84,37 +100,36 @@ app.get('/api/bikes/submissions', async (req, res) => {
 // Admin Authentication Endpoint
 app.post('/api/auth/admin-login', (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { username, password } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ message: 'Email and password are required' });
+    if (!username || !password) {
+      return res.status(400).json({ message: 'Username and password are required' });
     }
 
-    const adminEmail = process.env.ADMIN_EMAIL;
-    const adminPassword = process.env.ADMIN_PASSWORD;
-    const adminName = process.env.ADMIN_NAME || 'Administrator';
-    const adminPhone = process.env.ADMIN_PHONE || 'N/A';
+    const adminUsername = 'rrmotors';
+    const adminPassword = 'rrmotors@1';
+    const adminName = 'RR Motors Admin';
+    const adminPhone = 'N/A';
 
-    console.log('Login attempt:', { email, providedPassword: password ? '***' : 'empty' });
-    console.log('Admin config:', { adminEmail, adminPassword: adminPassword ? '***' : 'empty' });
+    console.log('Login attempt:', { username, providedPassword: password ? '***' : 'empty' });
 
     // Verify credentials
-    if (email === adminEmail && password === adminPassword) {
+    if (username === adminUsername && password === adminPassword) {
       return res.status(200).json({
         success: true,
         admin: {
-          email: adminEmail,
+          username: adminUsername,
           name: adminName,
           phone: adminPhone,
           role: 'admin',
           loginTime: new Date()
         },
-        token: Buffer.from(`${adminEmail}:${Date.now()}`).toString('base64')
+        token: Buffer.from(`${adminUsername}:${Date.now()}`).toString('base64')
       });
     } else {
       return res.status(401).json({ 
         success: false,
-        message: 'Invalid email or password' 
+        message: 'Invalid username or password' 
       });
     }
   } catch (error) {

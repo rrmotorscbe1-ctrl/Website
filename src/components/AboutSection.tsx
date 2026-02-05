@@ -3,10 +3,10 @@ import { ScrollAnimation } from '@/components/ScrollAnimation';
 import { Wrench, Award, Users, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const features = [
-  { icon: Award, label: 'Authorized Dealer', desc: 'Official partner of premium brands' },
+  { icon: Award, label: 'Our Commitment', desc: 'Delivering Excellence in Every Ride' },
   { icon: Users, label: 'Expert Team', desc: 'Certified mechanics & consultants' },
   { icon: Wrench, label: 'Full Service', desc: 'Complete maintenance solutions' },
-  { icon: Clock, label: '2+ Years', desc: 'Trusted industry experience' },
+  { icon: Clock, label: '3+ Years', desc: 'Trusted industry experience' },
 ];
 
 const aboutImages = [
@@ -47,11 +47,11 @@ export function AboutSection() {
               <span className="text-primary font-semibold text-sm uppercase tracking-wider">About Us</span>
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-foreground mt-2 mb-6">
                 Your Trusted Partner in
-                <span className="text-gradient"> Two-Wheel Excellence</span>
+                <span className="text-gradient"> TWO WHEELER Excellence</span>
               </h2>
               <p className="text-muted-foreground text-lg leading-relaxed mb-6">
                 Welcome to RR Motors, where passion for motorcycles meets exceptional service. 
-                For 2 years, we've been the premier destination for riders seeking quality, 
+                For 3 years, we've been the premier destination for riders seeking quality, 
                 performance, and unmatched customer care.
               </p>
               <p className="text-muted-foreground leading-relaxed mb-8">
