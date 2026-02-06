@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { bikeAPI } from '@/lib/api';
 import { imageAPI } from '@/lib/imageApi';
 import { logoutAdmin } from '@/lib/auth';
-import { Upload, Plus, X, LogOut, ChevronDown } from 'lucide-react';
+import { Upload, Plus, X, LogOut, ChevronDown, Pencil, Trash2, Check } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useEffect } from 'react';
 
@@ -40,6 +40,8 @@ export function AdminDashboard() {
   const [inlineNewBrandName, setInlineNewBrandName] = useState('');
   const [showInlineNewBrandSecondHand, setShowInlineNewBrandSecondHand] = useState(false);
   const [inlineNewBrandNameSecondHand, setInlineNewBrandNameSecondHand] = useState('');
+  const [editingBrandId, setEditingBrandId] = useState<number | null>(null);
+  const [editingBrandName, setEditingBrandName] = useState('');
 
   // Fetch brands, bikes, and enquiries on mount
   useEffect(() => {
@@ -195,6 +197,41 @@ export function AdminDashboard() {
         description: 'Failed to delete bike',
         variant: 'destructive'
       });
+    }
+  };
+
+  // Edit brand name
+  const handleEditBrand = async (brandId: number, newName: string) => {
+    if (!newName.trim()) {
+      toast({ title: 'Error', description: 'Brand name cannot be empty', variant: 'destructive' });
+      return;
+    }
+    try {
+      setIsLoading(true);
+      const updated = await bikeAPI.updateBrand(brandId, { name: newName.trim() });
+      setBrands(brands.map(b => b.id === brandId ? { ...b, name: updated.name } : b));
+      setEditingBrandId(null);
+      setEditingBrandName('');
+      toast({ title: 'Success', description: `Brand renamed to "${updated.name}"` });
+    } catch (error) {
+      toast({ title: 'Error', description: error instanceof Error ? error.message : 'Failed to update brand', variant: 'destructive' });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Delete brand
+  const handleDeleteBrand = async (brandId: number, brandName: string) => {
+    if (!window.confirm(`Are you sure you want to delete the brand "${brandName}"? This cannot be undone.`)) return;
+    try {
+      setIsLoading(true);
+      await bikeAPI.deleteBrand(brandId);
+      setBrands(brands.filter(b => b.id !== brandId));
+      toast({ title: 'Success', description: `Brand "${brandName}" deleted successfully` });
+    } catch (error) {
+      toast({ title: 'Error', description: error instanceof Error ? error.message : 'Failed to delete brand', variant: 'destructive' });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -522,6 +559,7 @@ export function AdminDashboard() {
             <TabsTrigger value="new-bikes">Add New Bikes</TabsTrigger>
             <TabsTrigger value="manage-bikes">Manage Bikes</TabsTrigger>
             <TabsTrigger value="second-hand">Add Second Hand</TabsTrigger>
+            <TabsTrigger value="manage-brands">Manage Brands</TabsTrigger>
             <TabsTrigger value="enquiries">Enquiries ({enquiries.length})</TabsTrigger>
           </TabsList>
 
@@ -1215,6 +1253,88 @@ export function AdminDashboard() {
           </TabsContent>
 
           {/* Enquiries Tab */}
+          {/* Manage Brands Tab */}
+          <TabsContent value="manage-brands" className="space-y-4">
+            <Card>
+              <CardHeader className="bg-gradient-to-r from-primary/10 to-accent/10 border-b border-primary/20">
+                <CardTitle className="text-2xl">Manage Brands</CardTitle>
+                <CardDescription>Edit or delete existing brands</CardDescription>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <div className="flex justify-end mb-4">
+                  <Button
+                    onClick={() => setShowNewBrandModal(true)}
+                    className="bg-gradient-primary hover:opacity-90"
+                  >
+                    <Plus className="w-4 h-4 mr-2" /> Add New Brand
+                  </Button>
+                </div>
+                {brands.length === 0 ? (
+                  <p className="text-center text-muted-foreground py-8">No brands found. Add a new brand to get started.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {brands.map((brand) => (
+                      <div key={brand.id} className="flex items-center justify-between p-3 rounded-lg border border-border hover:border-primary/40 transition-colors">
+                        {editingBrandId === brand.id ? (
+                          <div className="flex items-center gap-2 flex-1 mr-2">
+                            <Input
+                              value={editingBrandName}
+                              onChange={(e) => setEditingBrandName(e.target.value)}
+                              className="flex-1"
+                              autoFocus
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleEditBrand(brand.id, editingBrandName);
+                                if (e.key === 'Escape') { setEditingBrandId(null); setEditingBrandName(''); }
+                              }}
+                            />
+                            <Button
+                              size="sm"
+                              className="bg-green-600 hover:bg-green-700"
+                              disabled={isLoading}
+                              onClick={() => handleEditBrand(brand.id, editingBrandName)}
+                            >
+                              <Check className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => { setEditingBrandId(null); setEditingBrandName(''); }}
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <>
+                            <span className="font-medium text-foreground">{brand.name}</span>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="border-primary/30 hover:bg-primary/10"
+                                onClick={() => { setEditingBrandId(brand.id); setEditingBrandName(brand.name); }}
+                              >
+                                <Pencil className="w-4 h-4 mr-1" /> Edit
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="border-destructive/30 hover:bg-destructive/10 text-destructive"
+                                disabled={isLoading}
+                                onClick={() => handleDeleteBrand(brand.id, brand.name)}
+                              >
+                                <Trash2 className="w-4 h-4 mr-1" /> Delete
+                              </Button>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           <TabsContent value="enquiries" className="space-y-4">
             <Card>
               <CardHeader>

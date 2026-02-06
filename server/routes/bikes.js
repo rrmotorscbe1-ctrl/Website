@@ -134,6 +134,102 @@ router.post('/brands/list', async (req, res) => {
   }
 });
 
+// PUT update brand name
+router.put('/brands/list/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, country, founded_year } = req.body;
+
+    if (!name || !name.trim()) {
+      return res.status(400).json({ message: 'Brand name is required' });
+    }
+
+    // Check if another brand with the same name already exists (case-insensitive)
+    const { data: existingBrand, error: selectError } = await supabase
+      .from('brands')
+      .select('id, name')
+      .ilike('name', name.trim())
+      .neq('id', parseInt(id));
+
+    if (selectError) throw selectError;
+
+    if (existingBrand && existingBrand.length > 0) {
+      return res.status(409).json({
+        message: `Brand "${existingBrand[0].name}" already exists`,
+        existing: existingBrand[0]
+      });
+    }
+
+    const updateData = { name: name.trim() };
+    if (country !== undefined) updateData.country = country.trim();
+    if (founded_year !== undefined) updateData.founded_year = founded_year;
+
+    const { data, error } = await supabase
+      .from('brands')
+      .update(updateData)
+      .eq('id', parseInt(id))
+      .select();
+
+    if (error) throw error;
+
+    // Clear brands cache
+    brandsCache = null;
+    lastBrandsCacheTime = 0;
+
+    res.json(data?.[0]);
+  } catch (error) {
+    console.error('Error in PUT /brands/list/:id:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// DELETE brand
+router.delete('/brands/list/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Check if any bikes are using this brand
+    const { data: bikesUsingBrand, error: checkError } = await supabase
+      .from('bikes')
+      .select('id')
+      .eq('brand_id', parseInt(id))
+      .limit(1);
+
+    if (checkError) throw checkError;
+
+    // Also check second-hand bikes
+    const { data: secondHandUsingBrand, error: checkError2 } = await supabase
+      .from('second_hand_bikes')
+      .select('id')
+      .eq('brand_id', parseInt(id))
+      .limit(1);
+
+    if (checkError2) throw checkError2;
+
+    if ((bikesUsingBrand && bikesUsingBrand.length > 0) || (secondHandUsingBrand && secondHandUsingBrand.length > 0)) {
+      return res.status(400).json({
+        message: 'Cannot delete brand that is being used by bikes. Remove or reassign those bikes first.'
+      });
+    }
+
+    const { error } = await supabase
+      .from('brands')
+      .delete()
+      .eq('id', parseInt(id));
+
+    if (error) throw error;
+
+    // Clear brands cache
+    brandsCache = null;
+    lastBrandsCacheTime = 0;
+
+    res.json({ message: 'Brand deleted successfully' });
+  } catch (error) {
+    console.error('Error in DELETE /brands/list/:id:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // ============================================
 // NEW BIKES ENDPOINTS
 // ============================================

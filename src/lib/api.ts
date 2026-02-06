@@ -103,6 +103,42 @@ export const bikeAPI = {
     }
   },
 
+  // Update brand
+  async updateBrand(id: number, data: { name: string; country?: string; founded_year?: number }) {
+    try {
+      const response = await fetch(`${API_URL}/bikes/brands/list/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.message || 'Failed to update brand');
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Error updating brand:', error);
+      throw error;
+    }
+  },
+
+  // Delete brand
+  async deleteBrand(id: number) {
+    try {
+      const response = await fetch(`${API_URL}/bikes/brands/list/${id}`, {
+        method: 'DELETE'
+      });
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.message || 'Failed to delete brand');
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Error deleting brand:', error);
+      throw error;
+    }
+  },
+
   // Create new bike
   async createBike(bikeData: BikeData) {
     try {
