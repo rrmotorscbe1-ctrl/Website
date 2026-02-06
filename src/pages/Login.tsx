@@ -119,13 +119,6 @@ export function LoginPage() {
                 {isLoading ? 'Logging in...' : 'Login to Admin Panel'}
               </Button>
 
-              {/* Demo Info */}
-              <div className="p-4 bg-primary/10 rounded-lg border border-primary/20 text-sm">
-                <p className="text-muted-foreground mb-2 font-semibold">Demo Credentials:</p>
-                <p className="text-muted-foreground">Username: rrmotors</p>
-                <p className="text-muted-foreground">Password: rrmotors@1</p>
-              </div>
-
               {/* Home Link */}
               <Button
                 type="button"
