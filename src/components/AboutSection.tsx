@@ -10,9 +10,9 @@ const features = [
 ];
 
 const aboutImages = [
-  '/src/aboutus_images/1st.jpeg',
-  '/src/aboutus_images/2nd.jpeg',
-  '/src/aboutus_images/3rd.jpeg',
+  '/1st.jpeg',
+  '/2nd.jpeg',
+  '/3rd.jpeg',
 ];
 
 export function AboutSection() {
