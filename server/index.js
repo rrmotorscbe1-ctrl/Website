@@ -2,12 +2,17 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import cloudinary from 'cloudinary';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import bikeRoutes from './routes/bikes.js';
 import uploadRoutes from './routes/upload.js';
 import careersRoutes from './routes/careers.js';
 import { testConnection, supabase } from './config/supabase.js';
 
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Configure Cloudinary
 cloudinary.config({
@@ -185,6 +190,17 @@ app.get('/api/diagnostics', async (req, res) => {
       status: 'Diagnostic check failed',
       error: error.message
     });
+  }
+});
+
+// Serve frontend static files in production
+const distPath = path.join(__dirname, '..', 'dist');
+app.use(express.static(distPath));
+
+// SPA fallback - serve index.html for all non-API routes
+app.get('*', (req, res) => {
+  if (!req.path.startsWith('/api')) {
+    res.sendFile(path.join(distPath, 'index.html'));
   }
 });
 
