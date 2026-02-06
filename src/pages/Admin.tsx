@@ -885,7 +885,7 @@ export function AdminDashboard() {
                 <CardDescription>View, edit, and delete bikes from inventory</CardDescription>
               </CardHeader>
               <CardContent>
-                {allBikes.length === 0 ? (
+                {allBikes.length === 0 && allSecondHandBikes.length === 0 ? (
                   <div className="text-center py-8">
                     <p className="text-muted-foreground">No bikes in inventory</p>
                   </div>
@@ -893,48 +893,54 @@ export function AdminDashboard() {
                   <div className="space-y-4">
                     {/* New Bikes */}
                     <div>
-                      <h3 className="text-lg font-semibold mb-3">New Bikes</h3>
-                      <div className="space-y-2">
-                        {allBikes.map((bike) => (
-                          <div key={bike.id} className="flex items-center justify-between p-3 border rounded-lg bg-muted/30">
-                            <div className="flex-1">
-                              <p className="font-semibold">{bike.name}</p>
-                              <p className="text-sm text-muted-foreground">
-                                {bike.brands?.name} • {bike.category} • {bike.price}
-                              </p>
-                              <p className="text-xs text-muted-foreground mt-1">
-                                Stock: {bike.stock_quantity} | {bike.availability ? '✅ Available' : '❌ Not Available'}
-                              </p>
+                      <h3 className="text-lg font-semibold mb-3">New Bikes ({allBikes.length})</h3>
+                      {allBikes.length === 0 ? (
+                        <p className="text-sm text-muted-foreground py-3">No new bikes in inventory</p>
+                      ) : (
+                        <div className="space-y-2">
+                          {allBikes.map((bike) => (
+                            <div key={bike.id} className="flex items-center justify-between p-3 border rounded-lg bg-muted/30">
+                              <div className="flex-1">
+                                <p className="font-semibold">{bike.name}</p>
+                                <p className="text-sm text-muted-foreground">
+                                  {bike.brands?.name} • {bike.category} • {bike.price}
+                                </p>
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  Stock: {bike.stock_quantity} | {bike.availability ? '✅ Available' : '❌ Not Available'}
+                                </p>
+                              </div>
+                              <div className="flex gap-2">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    setEditingBike(bike);
+                                    setEditBikeForm(bike);
+                                    setShowEditBikeModal(true);
+                                  }}
+                                >
+                                  <Pencil className="w-4 h-4 mr-1" /> Edit
+                                </Button>
+                                <Button
+                                  variant="destructive"
+                                  size="sm"
+                                  onClick={() => handleDeleteBike(bike.id)}
+                                >
+                                  <Trash2 className="w-4 h-4 mr-1" /> Delete
+                                </Button>
+                              </div>
                             </div>
-                            <div className="flex gap-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => {
-                                  setEditingBike(bike);
-                                  setEditBikeForm(bike);
-                                  setShowEditBikeModal(true);
-                                }}
-                              >
-                                Edit
-                              </Button>
-                              <Button
-                                variant="destructive"
-                                size="sm"
-                                onClick={() => handleDeleteBike(bike.id)}
-                              >
-                                Delete
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
 
                     {/* Second Hand Bikes */}
-                    {allSecondHandBikes.length > 0 && (
-                      <div className="mt-6 pt-6 border-t">
-                        <h3 className="text-lg font-semibold mb-3">Second Hand Bikes</h3>
+                    <div className="mt-6 pt-6 border-t">
+                      <h3 className="text-lg font-semibold mb-3">Second Hand Bikes ({allSecondHandBikes.length})</h3>
+                      {allSecondHandBikes.length === 0 ? (
+                        <p className="text-sm text-muted-foreground py-3">No second hand bikes in inventory</p>
+                      ) : (
                         <div className="space-y-2">
                           {allSecondHandBikes.map((bike) => (
                             <div key={bike.id} className="flex items-center justify-between p-3 border rounded-lg bg-muted/30">
@@ -957,21 +963,21 @@ export function AdminDashboard() {
                                     setShowEditBikeModal(true);
                                   }}
                                 >
-                                  Edit
+                                  <Pencil className="w-4 h-4 mr-1" /> Edit
                                 </Button>
                                 <Button
                                   variant="destructive"
                                   size="sm"
                                   onClick={() => handleDeleteSecondHand(bike.id)}
                                 >
-                                  Delete
+                                  <Trash2 className="w-4 h-4 mr-1" /> Delete
                                 </Button>
                               </div>
                             </div>
                           ))}
                         </div>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
                 )}
               </CardContent>
