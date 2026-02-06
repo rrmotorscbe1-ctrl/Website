@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "build": "npm install && npm install --prefix server && vite build",
+    "build": "vite build",
     "dev": "vite",
     "dev:server": "npm run dev --prefix server",
     "start": "concurrently \"npm run dev\" \"npm run dev:server\"",

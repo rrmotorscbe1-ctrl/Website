@@ -149,7 +149,8 @@ export function BikeDetail({ isSecondHand = false, isAdminView = false }: BikeDe
         });
 
         // Store submission to backend for Google Sheets
-        await fetch('http://localhost:5000/api/bikes/store-submission', {
+        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+        await fetch(`${API_URL}/bikes/store-submission`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

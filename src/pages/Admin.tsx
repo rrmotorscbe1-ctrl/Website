@@ -228,7 +228,8 @@ export function AdminDashboard() {
       setIsLoading(true);
 
       // Create brand via API
-      const response = await fetch('http://localhost:5000/api/bikes/brands/list', {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const response = await fetch(`${API_URL}/bikes/brands/list`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -614,7 +615,8 @@ export function AdminDashboard() {
                                 // Create new brand
                                 try {
                                   setIsLoading(true);
-                                  const response = await fetch('http://localhost:5000/api/bikes/brands/list', {
+                                  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+                                  const response = await fetch(`${API_URL}/bikes/brands/list`, {
                                     method: 'POST',
                                     headers: { 'Content-Type': 'application/json' },
                                     body: JSON.stringify({
@@ -1028,7 +1030,8 @@ export function AdminDashboard() {
                                 // Create new brand
                                 try {
                                   setIsLoading(true);
-                                  const response = await fetch('http://localhost:5000/api/bikes/brands/list', {
+                                  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+                                  const response = await fetch(`${API_URL}/bikes/brands/list`, {
                                     method: 'POST',
                                     headers: { 'Content-Type': 'application/json' },
                                     body: JSON.stringify({
