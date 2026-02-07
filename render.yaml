@@ -26,5 +26,3 @@ services:
         sync: false
       - key: NODE_ENV
         value: production
-      - key: ALLOWED_ORIGINS
-        sync: false

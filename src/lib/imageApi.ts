@@ -7,10 +7,16 @@ export const imageAPI = {
       const formData = new FormData();
       formData.append('image', file);
 
-      const response = await fetch(`${API_URL}/upload/upload`, {
-        method: 'POST',
-        body: formData
-      });
+      let response: Response;
+      try {
+        response = await fetch(`${API_URL}/upload/upload`, {
+          method: 'POST',
+          body: formData
+        });
+      } catch (networkError) {
+        console.error('Network error uploading image:', networkError);
+        return { success: false, message: 'Network error: Unable to reach the server.' };
+      }
 
       if (!response.ok) throw new Error('Upload failed');
       return await response.json();
@@ -23,9 +29,15 @@ export const imageAPI = {
   // Delete bike image
   async deleteBikeImage(publicId) {
     try {
-      const response = await fetch(`${API_URL}/upload/delete/${publicId}`, {
-        method: 'DELETE'
-      });
+      let response: Response;
+      try {
+        response = await fetch(`${API_URL}/upload/delete/${publicId}`, {
+          method: 'DELETE'
+        });
+      } catch (networkError) {
+        console.error('Network error deleting image:', networkError);
+        return { success: false, message: 'Network error: Unable to reach the server.' };
+      }
 
       if (!response.ok) throw new Error('Delete failed');
       return await response.json();
@@ -38,7 +50,13 @@ export const imageAPI = {
   // Get optimized image variants
   async getImageVariants(publicId) {
     try {
-      const response = await fetch(`${API_URL}/upload/optimize/${publicId}`);
+      let response: Response;
+      try {
+        response = await fetch(`${API_URL}/upload/optimize/${publicId}`);
+      } catch (networkError) {
+        console.error('Network error getting image variants:', networkError);
+        return { success: false, message: 'Network error: Unable to reach the server.' };
+      }
 
       if (!response.ok) throw new Error('Failed to get variants');
       return await response.json();

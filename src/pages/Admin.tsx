@@ -265,20 +265,29 @@ export function AdminDashboard() {
       setIsLoading(true);
 
       // Create brand via API
-      const response = await fetch(`${API_URL}/bikes/brands/list`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          name: newBrandForm.name.trim(),
-          country: newBrandForm.country.trim(),
-          founded_year: parseInt(newBrandForm.founded_year),
-          active: true
-        })
-      });
+      let response: Response;
+      try {
+        response = await fetch(`${API_URL}/bikes/brands/list`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            name: newBrandForm.name.trim(),
+            country: newBrandForm.country.trim(),
+            founded_year: parseInt(newBrandForm.founded_year),
+            active: true
+          })
+        });
+      } catch (networkError) {
+        console.error('Network error adding brand:', networkError);
+        throw new Error('Network error: Unable to reach the server. Please check your connection and try again.');
+      }
 
-      if (!response.ok) throw new Error('Failed to create brand');
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.message || `Server error (${response.status}): Failed to create brand`);
+      }
 
       const createdBrand = await response.json();
 
@@ -652,17 +661,25 @@ export function AdminDashboard() {
                                 // Create new brand
                                 try {
                                   setIsLoading(true);
-                                  const response = await fetch(`${API_URL}/bikes/brands/list`, {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({
-                                      name: brandName,
-                                      country: '',
-                                      founded_year: new Date().getFullYear(),
-                                      active: true
-                                    })
-                                  });
-                                  if (!response.ok) throw new Error('Failed to create brand');
+                                  let response: Response;
+                                  try {
+                                    response = await fetch(`${API_URL}/bikes/brands/list`, {
+                                      method: 'POST',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({
+                                        name: brandName,
+                                        country: '',
+                                        founded_year: new Date().getFullYear(),
+                                        active: true
+                                      })
+                                    });
+                                  } catch (networkError) {
+                                    throw new Error('Network error: Unable to reach the server.');
+                                  }
+                                  if (!response.ok) {
+                                    const errData = await response.json().catch(() => ({}));
+                                    throw new Error(errData.message || `Failed to create brand (${response.status})`);
+                                  }
                                   const createdBrand = await response.json();
                                   setBrands([...brands, createdBrand]);
                                   setNewBikeForm({ ...newBikeForm, brand_id: createdBrand.id.toString() });
@@ -673,7 +690,7 @@ export function AdminDashboard() {
                                 } catch (error) {
                                   toast({
                                     title: 'Error',
-                                    description: 'Failed to create brand',
+                                    description: error instanceof Error ? error.message : 'Failed to create brand',
                                     variant: 'destructive'
                                   });
                                 } finally {
@@ -1072,17 +1089,25 @@ export function AdminDashboard() {
                                 // Create new brand
                                 try {
                                   setIsLoading(true);
-                                  const response = await fetch(`${API_URL}/bikes/brands/list`, {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({
-                                      name: brandName,
-                                      country: '',
-                                      founded_year: new Date().getFullYear(),
-                                      active: true
-                                    })
-                                  });
-                                  if (!response.ok) throw new Error('Failed to create brand');
+                                  let response: Response;
+                                  try {
+                                    response = await fetch(`${API_URL}/bikes/brands/list`, {
+                                      method: 'POST',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({
+                                        name: brandName,
+                                        country: '',
+                                        founded_year: new Date().getFullYear(),
+                                        active: true
+                                      })
+                                    });
+                                  } catch (networkError) {
+                                    throw new Error('Network error: Unable to reach the server.');
+                                  }
+                                  if (!response.ok) {
+                                    const errData = await response.json().catch(() => ({}));
+                                    throw new Error(errData.message || `Failed to create brand (${response.status})`);
+                                  }
                                   const createdBrand = await response.json();
                                   setBrands([...brands, createdBrand]);
                                   setSecondHandForm({ ...secondHandForm, brand_id: createdBrand.id.toString() });
@@ -1093,7 +1118,7 @@ export function AdminDashboard() {
                                 } catch (error) {
                                   toast({
                                     title: 'Error',
-                                    description: 'Failed to create brand',
+                                    description: error instanceof Error ? error.message : 'Failed to create brand',
                                     variant: 'destructive'
                                   });
                                 } finally {

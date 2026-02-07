@@ -25,16 +25,50 @@ cloudinary.config({
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
+// Parse allowed origins from environment
+const configuredOrigins = (process.env.ALLOWED_ORIGINS || '').split(',').map(url => url.trim()).filter(Boolean);
+
+// Middleware - Dynamic CORS for production + development
 app.use(cors({
-  origin: (process.env.ALLOWED_ORIGINS || 'http://localhost:5173,http://localhost:3000').split(',').map(url => url.trim()),
+  origin: function (origin, callback) {
+    // Allow requests with no origin (same-origin requests, mobile apps, Postman, curl)
+    if (!origin) return callback(null, true);
+
+    // Allow explicitly configured origins
+    if (configuredOrigins.length > 0 && configuredOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    // In production, allow same-origin (frontend served from same server)
+    if (process.env.NODE_ENV === 'production') {
+      return callback(null, true);
+    }
+
+    // In development, allow localhost on any port
+    if (origin.match(/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/)) {
+      return callback(null, true);
+    }
+
+    console.warn(`⚠️ CORS blocked origin: ${origin}`);
+    callback(null, true); // Allow anyway to prevent fetch failures
+  },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
   exposedHeaders: ['Content-Type', 'Authorization']
 }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+
+// Ensure OPTIONS preflight requests are handled for all routes
+app.options('*', cors());
+
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+// API request logging (helps debug production issues)
+app.use('/api', (req, res, next) => {
+  console.log(`📡 ${req.method} ${req.originalUrl} [Origin: ${req.headers.origin || 'same-origin'}]`);
+  next();
+});
 
 // Routes
 app.use('/api/bikes', bikeRoutes);

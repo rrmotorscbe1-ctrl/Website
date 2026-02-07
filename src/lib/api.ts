@@ -1,5 +1,19 @@
 export const API_URL = import.meta.env.VITE_API_URL || '/api';
 
+// Helper: fetch with better error handling for production
+async function safeFetch(url: string, options?: RequestInit): Promise<Response> {
+  try {
+    const response = await window.fetch(url, options);
+    return response;
+  } catch (error) {
+    // Network-level errors (CORS blocked, server unreachable, DNS failure)
+    console.error(`❌ Network fetch error for ${options?.method || 'GET'} ${url}:`, error);
+    throw new Error(
+      `Network error: Unable to reach the server. Please check your internet connection and try again.`
+    );
+  }
+}
+
 interface BikeData {
   name: string;
   brand_id: number;
@@ -46,7 +60,7 @@ export const bikeAPI = {
   // Get all new bikes
   async getAllBikes() {
     try {
-      const response = await fetch(`${API_URL}/bikes`);
+      const response = await safeFetch(`${API_URL}/bikes`);
       if (!response.ok) throw new Error('Failed to fetch bikes');
       return await response.json();
     } catch (error) {
@@ -58,7 +72,7 @@ export const bikeAPI = {
   // Get new bike by ID
   async getBikeById(id: number) {
     try {
-      const response = await fetch(`${API_URL}/bikes/new/${id}`);
+      const response = await safeFetch(`${API_URL}/bikes/new/${id}`);
       if (!response.ok) throw new Error('Failed to fetch bike');
       return await response.json();
     } catch (error) {
@@ -70,7 +84,7 @@ export const bikeAPI = {
   // Get bikes by brand ID
   async getBikesByBrand(brandId: number) {
     try {
-      const response = await fetch(`${API_URL}/bikes/brand/${brandId}`);
+      const response = await safeFetch(`${API_URL}/bikes/brand/${brandId}`);
       if (!response.ok) throw new Error('Failed to fetch bikes by brand');
       return await response.json();
     } catch (error) {
@@ -82,7 +96,7 @@ export const bikeAPI = {
   // Get bikes by category
   async getBikesByCategory(category: string) {
     try {
-      const response = await fetch(`${API_URL}/bikes/category/${category}`);
+      const response = await safeFetch(`${API_URL}/bikes/category/${category}`);
       if (!response.ok) throw new Error('Failed to fetch bikes by category');
       return await response.json();
     } catch (error) {
@@ -94,7 +108,7 @@ export const bikeAPI = {
   // Get all brands
   async getAllBrands() {
     try {
-      const response = await fetch(`${API_URL}/bikes/brands/list`);
+      const response = await safeFetch(`${API_URL}/bikes/brands/list`);
       if (!response.ok) throw new Error('Failed to fetch brands');
       return await response.json();
     } catch (error) {
@@ -106,7 +120,7 @@ export const bikeAPI = {
   // Update brand
   async updateBrand(id: number, data: { name: string; country?: string; founded_year?: number }) {
     try {
-      const response = await fetch(`${API_URL}/bikes/brands/list/${id}`, {
+      const response = await safeFetch(`${API_URL}/bikes/brands/list/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -125,7 +139,7 @@ export const bikeAPI = {
   // Delete brand
   async deleteBrand(id: number) {
     try {
-      const response = await fetch(`${API_URL}/bikes/brands/list/${id}`, {
+      const response = await safeFetch(`${API_URL}/bikes/brands/list/${id}`, {
         method: 'DELETE'
       });
       if (!response.ok) {
@@ -142,7 +156,7 @@ export const bikeAPI = {
   // Create new bike
   async createBike(bikeData: BikeData) {
     try {
-      const response = await fetch(`${API_URL}/bikes/new`, {
+      const response = await safeFetch(`${API_URL}/bikes/new`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(bikeData)
@@ -158,7 +172,7 @@ export const bikeAPI = {
   // Update bike
   async updateBike(id: number, bikeData: Partial<BikeData>) {
     try {
-      const response = await fetch(`${API_URL}/bikes/new/${id}`, {
+      const response = await safeFetch(`${API_URL}/bikes/new/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(bikeData)
@@ -174,7 +188,7 @@ export const bikeAPI = {
   // Delete bike
   async deleteBike(id: number) {
     try {
-      const response = await fetch(`${API_URL}/bikes/new/${id}`, {
+      const response = await safeFetch(`${API_URL}/bikes/new/${id}`, {
         method: 'DELETE'
       });
       if (!response.ok) throw new Error('Failed to delete bike');
@@ -192,7 +206,7 @@ export const bikeAPI = {
   // Get all second-hand bikes
   async getAllSecondHandBikes() {
     try {
-      const response = await fetch(`${API_URL}/bikes/second-hand`);
+      const response = await safeFetch(`${API_URL}/bikes/second-hand`);
       if (!response.ok) throw new Error('Failed to fetch second-hand bikes');
       return await response.json();
     } catch (error) {
@@ -204,7 +218,7 @@ export const bikeAPI = {
   // Get second-hand bike by ID
   async getSecondHandBikeById(id: number) {
     try {
-      const response = await fetch(`${API_URL}/bikes/second-hand/${id}`);
+      const response = await safeFetch(`${API_URL}/bikes/second-hand/${id}`);
       if (!response.ok) throw new Error('Failed to fetch second-hand bike');
       return await response.json();
     } catch (error) {
@@ -216,7 +230,7 @@ export const bikeAPI = {
   // Get second-hand bikes by brand ID
   async getSecondHandBikesByBrand(brandId: number) {
     try {
-      const response = await fetch(`${API_URL}/bikes/second-hand/brand/${brandId}`);
+      const response = await safeFetch(`${API_URL}/bikes/second-hand/brand/${brandId}`);
       if (!response.ok) throw new Error('Failed to fetch second-hand bikes by brand');
       return await response.json();
     } catch (error) {
@@ -228,7 +242,7 @@ export const bikeAPI = {
   // Get second-hand bikes by condition
   async getSecondHandBikesByCondition(condition: string) {
     try {
-      const response = await fetch(`${API_URL}/bikes/second-hand/condition/${condition}`);
+      const response = await safeFetch(`${API_URL}/bikes/second-hand/condition/${condition}`);
       if (!response.ok) throw new Error('Failed to fetch second-hand bikes by condition');
       return await response.json();
     } catch (error) {
@@ -240,7 +254,7 @@ export const bikeAPI = {
   // Create second-hand bike
   async createSecondHandBike(bikeData: SecondHandBikeData) {
     try {
-      const response = await fetch(`${API_URL}/bikes/second-hand`, {
+      const response = await safeFetch(`${API_URL}/bikes/second-hand`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(bikeData)
@@ -256,7 +270,7 @@ export const bikeAPI = {
   // Update second-hand bike
   async updateSecondHandBike(id: number, bikeData: Partial<SecondHandBikeData>) {
     try {
-      const response = await fetch(`${API_URL}/bikes/second-hand/${id}`, {
+      const response = await safeFetch(`${API_URL}/bikes/second-hand/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(bikeData)
@@ -272,7 +286,7 @@ export const bikeAPI = {
   // Delete second-hand bike
   async deleteSecondHandBike(id: number) {
     try {
-      const response = await fetch(`${API_URL}/bikes/second-hand/${id}`, {
+      const response = await safeFetch(`${API_URL}/bikes/second-hand/${id}`, {
         method: 'DELETE'
       });
       if (!response.ok) throw new Error('Failed to delete second-hand bike');
@@ -290,7 +304,7 @@ export const bikeAPI = {
   // Get all enquiries
   async getAllEnquiries() {
     try {
-      const response = await fetch(`${API_URL}/bikes/enquiries`);
+      const response = await safeFetch(`${API_URL}/bikes/enquiries`);
       if (!response.ok) throw new Error('Failed to fetch enquiries');
       return await response.json();
     } catch (error) {
@@ -302,7 +316,7 @@ export const bikeAPI = {
   // Get enquiry by ID
   async getEnquiryById(id: number) {
     try {
-      const response = await fetch(`${API_URL}/bikes/enquiries/${id}`);
+      const response = await safeFetch(`${API_URL}/bikes/enquiries/${id}`);
       if (!response.ok) throw new Error('Failed to fetch enquiry');
       return await response.json();
     } catch (error) {
@@ -314,7 +328,7 @@ export const bikeAPI = {
   // Create new enquiry
   async createEnquiry(enquiryData: any) {
     try {
-      const response = await fetch(`${API_URL}/bikes/enquiries`, {
+      const response = await safeFetch(`${API_URL}/bikes/enquiries`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(enquiryData)
@@ -336,7 +350,7 @@ export const bikeAPI = {
   // Update enquiry
   async updateEnquiry(id: number, updates: any) {
     try {
-      const response = await fetch(`${API_URL}/bikes/enquiries/${id}`, {
+      const response = await safeFetch(`${API_URL}/bikes/enquiries/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates)
@@ -352,7 +366,7 @@ export const bikeAPI = {
   // Delete enquiry
   async deleteEnquiry(id: number) {
     try {
-      const response = await fetch(`${API_URL}/bikes/enquiries/${id}`, {
+      const response = await safeFetch(`${API_URL}/bikes/enquiries/${id}`, {
         method: 'DELETE'
       });
       if (!response.ok) throw new Error('Failed to delete enquiry');

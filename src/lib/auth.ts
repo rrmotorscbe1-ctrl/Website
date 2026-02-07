@@ -9,13 +9,19 @@ export const supabase: SupabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON
 // Admin Login using username and password
 export async function loginAdmin(username: string, password: string) {
   try {
-    const response = await fetch(`${API_URL}/auth/admin-login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username, password })
-    });
+    let response: Response;
+    try {
+      response = await fetch(`${API_URL}/auth/admin-login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password })
+      });
+    } catch (networkError) {
+      console.error('Network error during login:', networkError);
+      return { success: false, error: 'Network error: Unable to reach the server. Please check your connection.' };
+    }
 
     const data = await response.json();
 
@@ -46,13 +52,19 @@ export async function getAdminInfo() {
       return { success: false, error: 'Not logged in' };
     }
 
-    const response = await fetch(`${API_URL}/auth/admin`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    });
+    let response: Response;
+    try {
+      response = await fetch(`${API_URL}/auth/admin`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+    } catch (networkError) {
+      console.error('Network error getting admin info:', networkError);
+      return { success: false, error: 'Network error: Unable to reach the server.' };
+    }
 
     const data = await response.json();
 
