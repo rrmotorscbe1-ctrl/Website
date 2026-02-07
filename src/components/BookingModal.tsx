@@ -101,8 +101,10 @@ export function BookingModal({ isOpen, onClose, serviceType = 'Service' }: Booki
       console.error('Booking submission failed:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to submit booking. Please try again.';
       toast({
-        title: 'Error',
-        description: errorMessage,
+        title: 'Booking Failed',
+        description: errorMessage.includes('attempts')
+          ? 'Server is waking up. Please wait 30 seconds and try again.'
+          : errorMessage,
         variant: 'destructive'
       });
     } finally {

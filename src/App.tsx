@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
 import Index from "./pages/Index";
 import Admin from "./pages/Admin";
 import Login from "./pages/Login";
@@ -10,10 +11,23 @@ import NotFound from "./pages/NotFound";
 import { BikeDetail } from "./pages/BikeDetail";
 import { FinancePage } from "./pages/Finance";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { API_URL } from "@/lib/api";
 
 const queryClient = new QueryClient();
 
-const App = () => (
+// Warm up the server on page load (Render free tier spins down after inactivity)
+function useServerWarmup() {
+  useEffect(() => {
+    fetch(`${API_URL}/ping`).catch(() => {
+      // Silent fail — just waking up the server
+    });
+  }, []);
+}
+
+const App = () => {
+  useServerWarmup();
+
+  return (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
@@ -47,6 +61,7 @@ const App = () => (
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;

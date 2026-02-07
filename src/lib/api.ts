@@ -1,17 +1,50 @@
 export const API_URL = import.meta.env.VITE_API_URL || '/api';
 
-// Helper: fetch with better error handling for production
+// Helper: fetch with retry logic, timeout, and better error handling for production
+const MAX_RETRIES = 3;
+const INITIAL_RETRY_DELAY = 2000; // 2 seconds
+const REQUEST_TIMEOUT = 30000; // 30 seconds (Render free tier can take time to wake up)
+
 async function safeFetch(url: string, options?: RequestInit): Promise<Response> {
-  try {
-    const response = await window.fetch(url, options);
-    return response;
-  } catch (error) {
-    // Network-level errors (CORS blocked, server unreachable, DNS failure)
-    console.error(`❌ Network fetch error for ${options?.method || 'GET'} ${url}:`, error);
-    throw new Error(
-      `Network error: Unable to reach the server. Please check your internet connection and try again.`
-    );
+  let lastError: Error | null = null;
+
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      // Create an AbortController for timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+
+      const response = await window.fetch(url, {
+        ...options,
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+      return response;
+    } catch (error: any) {
+      lastError = error;
+
+      // Don't retry if the request was intentionally aborted by the user
+      if (error.name === 'AbortError') {
+        console.warn(`⏱️ Request timeout for ${options?.method || 'GET'} ${url} (attempt ${attempt}/${MAX_RETRIES})`);
+      } else {
+        console.warn(`❌ Network error for ${options?.method || 'GET'} ${url} (attempt ${attempt}/${MAX_RETRIES}):`, error.message);
+      }
+
+      // If we have more retries, wait with exponential backoff
+      if (attempt < MAX_RETRIES) {
+        const delay = INITIAL_RETRY_DELAY * Math.pow(2, attempt - 1);
+        console.log(`🔄 Retrying in ${delay / 1000}s...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
   }
+
+  // All retries exhausted
+  console.error(`❌ All ${MAX_RETRIES} attempts failed for ${options?.method || 'GET'} ${url}`);
+  throw new Error(
+    `Unable to reach the server after ${MAX_RETRIES} attempts. The server may be starting up — please wait a moment and try again.`
+  );
 }
 
 interface BikeData {
@@ -328,6 +361,7 @@ export const bikeAPI = {
   // Create new enquiry
   async createEnquiry(enquiryData: any) {
     try {
+      // Try the primary endpoint first
       const response = await safeFetch(`${API_URL}/bikes/enquiries`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

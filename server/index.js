@@ -190,7 +190,12 @@ app.get('/api/auth/admin', (req, res) => {
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'Server is running', timestamp: new Date() });
+  res.json({ status: 'Server is running', timestamp: new Date(), uptime: process.uptime() });
+});
+
+// Keep-alive endpoint (lightweight, no DB calls)
+app.get('/api/ping', (req, res) => {
+  res.status(200).send('pong');
 });
 
 // Diagnostics endpoint
