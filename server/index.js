@@ -9,10 +9,11 @@ import uploadRoutes from './routes/upload.js';
 import careersRoutes from './routes/careers.js';
 import { testConnection, supabase } from './config/supabase.js';
 
-dotenv.config();
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Load .env from project root (one level up from server/)
+dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
 
 // Configure Cloudinary
 cloudinary.config({

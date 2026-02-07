@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BikeContactModal } from '@/components/BikeContactModal';
-import { bikeAPI } from '@/lib/api';
+import { bikeAPI, API_URL } from '@/lib/api';
 import { useToast } from '@/components/ui/use-toast';
 import { ArrowLeft, Save, X } from 'lucide-react';
 
@@ -149,7 +149,6 @@ export function BikeDetail({ isSecondHand = false, isAdminView = false }: BikeDe
         });
 
         // Store submission to backend for Google Sheets
-        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
         await fetch(`${API_URL}/bikes/store-submission`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

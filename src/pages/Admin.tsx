@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { bikeAPI } from '@/lib/api';
+import { bikeAPI, API_URL } from '@/lib/api';
 import { imageAPI } from '@/lib/imageApi';
 import { logoutAdmin } from '@/lib/auth';
 import { Upload, Plus, X, LogOut, ChevronDown, Pencil, Trash2, Check } from 'lucide-react';
@@ -265,7 +265,6 @@ export function AdminDashboard() {
       setIsLoading(true);
 
       // Create brand via API
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
       const response = await fetch(`${API_URL}/bikes/brands/list`, {
         method: 'POST',
         headers: {
@@ -653,7 +652,6 @@ export function AdminDashboard() {
                                 // Create new brand
                                 try {
                                   setIsLoading(true);
-                                  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
                                   const response = await fetch(`${API_URL}/bikes/brands/list`, {
                                     method: 'POST',
                                     headers: { 'Content-Type': 'application/json' },
@@ -1074,7 +1072,6 @@ export function AdminDashboard() {
                                 // Create new brand
                                 try {
                                   setIsLoading(true);
-                                  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
                                   const response = await fetch(`${API_URL}/bikes/brands/list`, {
                                     method: 'POST',
                                     headers: { 'Content-Type': 'application/json' },
